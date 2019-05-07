@@ -60,7 +60,7 @@ func (wAPI WalletAPI) CreateAddress() (map[string]string, error) {
 }
 
 // ImportAddress - import a subwallet with the given private spend key
-func (wAPI WalletAPI) ImportAddress(spendKey string, scanHeight int) (string, error) {
+func (wAPI WalletAPI) ImportAddress(spendKey string, scanHeight uint64) (string, error) {
 	var address string
 
 	resp, _, err := wAPI.sendRequest(
@@ -80,7 +80,7 @@ func (wAPI WalletAPI) ImportAddress(spendKey string, scanHeight int) (string, er
 }
 
 // ImportViewAddress - import a view only subwallet with the given public spend key
-func (wAPI WalletAPI) ImportViewAddress(spendKey string, scanHeight int) (string, error) {
+func (wAPI WalletAPI) ImportViewAddress(spendKey string, scanHeight uint64) (string, error) {
 	var address string
 
 	resp, _, err := wAPI.sendRequest(

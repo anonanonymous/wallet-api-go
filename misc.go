@@ -24,6 +24,19 @@ func (wAPI WalletAPI) Reset(scanHeight uint64) error {
 	return err
 }
 
+// ValidateAddress - validates an address
+func (wAPI WalletAPI) ValidateAddress(address string) error {
+	_, _, err := wAPI.sendRequest(
+		"POST",
+		wAPI.Host+":"+wAPI.Port+"/addresses/validate",
+		makeJSONString(map[string]interface{}{
+			"address": address,
+		}),
+	)
+
+	return err
+}
+
 // Status - gets the wallet status
 func (wAPI WalletAPI) Status() (*map[string]interface{}, error) {
 	resp, _, err := wAPI.sendRequest(

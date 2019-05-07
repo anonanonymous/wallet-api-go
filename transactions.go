@@ -9,18 +9,18 @@ import (
 // Transfer - represents a transfer object
 type Transfer struct {
 	Address string `json:"address"`
-	Amount  int64  `json:"amount"`
+	Amount  uint64 `json:"amount"`
 }
 
 // Transaction - represents a transaction object
 type Transaction struct {
-	BlockHeight           int64      `json:"blockHeight"`
-	Fee                   int64      `json:"fee"`
+	BlockHeight           uint64     `json:"blockHeight"`
+	Fee                   uint64     `json:"fee"`
 	Hash                  string     `json:"hash"`
 	IsCoinbaseTransaction bool       `json:"isCoinbaseTransaction"`
 	PaymentID             string     `json:"paymentID"`
-	Timestamp             int64      `json:"timestamp"`
-	UnlockTime            int64      `json:"unlockTime"`
+	Timestamp             uint64     `json:"timestamp"`
+	UnlockTime            uint64     `json:"unlockTime"`
 	Transfers             []Transfer `json:"transfers"`
 }
 
@@ -131,7 +131,7 @@ func (wAPI WalletAPI) GetUnconfirmedTransactionsByAddress(address string) (txs *
 }
 
 // GetTransactionsByStartHeight - gets 1000 transactions for the wallet starting at startHeight
-func (wAPI WalletAPI) GetTransactionsByStartHeight(startHeight int64) (txs *[]Transaction, err error) {
+func (wAPI WalletAPI) GetTransactionsByStartHeight(startHeight uint64) (txs *[]Transaction, err error) {
 	var tx Transactions
 	defer func() {
 		if ok := recover(); ok != nil {
@@ -139,7 +139,7 @@ func (wAPI WalletAPI) GetTransactionsByStartHeight(startHeight int64) (txs *[]Tr
 		}
 	}()
 
-	start := strconv.FormatInt(startHeight, 10)
+	start := strconv.FormatUint(startHeight, 10)
 	_, raw, err := wAPI.sendRequest(
 		"GET",
 		wAPI.Host+":"+wAPI.Port+"/transactions/"+start,
@@ -157,7 +157,7 @@ func (wAPI WalletAPI) GetTransactionsByStartHeight(startHeight int64) (txs *[]Tr
 }
 
 // GetTransactionsInRange - gets transactions for the wallet given a range of block heights
-func (wAPI WalletAPI) GetTransactionsInRange(start, end int64) (txs *[]Transaction, err error) {
+func (wAPI WalletAPI) GetTransactionsInRange(start, end uint64) (txs *[]Transaction, err error) {
 	var tx Transactions
 	defer func() {
 		if ok := recover(); ok != nil {
@@ -165,8 +165,8 @@ func (wAPI WalletAPI) GetTransactionsInRange(start, end int64) (txs *[]Transacti
 		}
 	}()
 
-	low := strconv.FormatInt(start, 10)
-	high := strconv.FormatInt(end, 10)
+	low := strconv.FormatUint(start, 10)
+	high := strconv.FormatUint(end, 10)
 	_, raw, err := wAPI.sendRequest(
 		"GET",
 		wAPI.Host+":"+wAPI.Port+"/transactions/"+low+"/"+high,
@@ -184,7 +184,7 @@ func (wAPI WalletAPI) GetTransactionsInRange(start, end int64) (txs *[]Transacti
 }
 
 // GetAddressTransactionsByStartHeight - gets 1000 transactions for the address starting at startHeight
-func (wAPI WalletAPI) GetAddressTransactionsByStartHeight(address string, startHeight int64) (txs *[]Transaction, err error) {
+func (wAPI WalletAPI) GetAddressTransactionsByStartHeight(address string, startHeight uint64) (txs *[]Transaction, err error) {
 	var tx Transactions
 	defer func() {
 		if ok := recover(); ok != nil {
@@ -192,7 +192,7 @@ func (wAPI WalletAPI) GetAddressTransactionsByStartHeight(address string, startH
 		}
 	}()
 
-	start := strconv.FormatInt(startHeight, 10)
+	start := strconv.FormatUint(startHeight, 10)
 	_, raw, err := wAPI.sendRequest(
 		"GET",
 		wAPI.Host+":"+wAPI.Port+"/transactions/address/"+address+"/"+start,
@@ -210,7 +210,7 @@ func (wAPI WalletAPI) GetAddressTransactionsByStartHeight(address string, startH
 }
 
 // GetAddressTransactionsInRange - gets transactions for the address given a range of block heights
-func (wAPI WalletAPI) GetAddressTransactionsInRange(address string, start, end int64) (txs *[]Transaction, err error) {
+func (wAPI WalletAPI) GetAddressTransactionsInRange(address string, start, end uint64) (txs *[]Transaction, err error) {
 	var tx Transactions
 	defer func() {
 		if ok := recover(); ok != nil {
@@ -218,8 +218,8 @@ func (wAPI WalletAPI) GetAddressTransactionsInRange(address string, start, end i
 		}
 	}()
 
-	low := strconv.FormatInt(start, 10)
-	high := strconv.FormatInt(end, 10)
+	low := strconv.FormatUint(start, 10)
+	high := strconv.FormatUint(end, 10)
 	_, raw, err := wAPI.sendRequest(
 		"GET",
 		wAPI.Host+":"+wAPI.Port+"/transactions/address/"+address+"/"+low+"/"+high,
@@ -260,30 +260,35 @@ func (wAPI WalletAPI) SendTransactionBasic(destination, paymentID string, amount
 // SendTransactionAdvanced - sends a transaction
 func (wAPI WalletAPI) SendTransactionAdvanced(
 	destinations []map[string]interface{},
-	mixin, fee, sourceAddresses, paymentID, changeAddress, unlockTime interface{}) (string, error) {
+	mixin, fee, sourceAddresses, paymentID, changeAddress, unlockTime interface{}) (tx string, err error) {
 	var txHash string
 
+	defer func() {
+		if ok := recover(); ok != nil {
+			err = errors.New(ERRORS[400])
+		}
+	}()
 	body := map[string]interface{}{
 		"destinations": destinations,
 	}
 
 	if mixin != nil {
-		body["mixin"] = mixin
+		body["mixin"] = mixin.(uint64)
 	}
 	if fee != nil {
-		body["fee"] = fee
+		body["fee"] = fee.(uint64)
 	}
 	if sourceAddresses != nil {
-		body["sourceAddresses"] = sourceAddresses
+		body["sourceAddresses"] = sourceAddresses.([]string)
 	}
 	if paymentID != nil {
-		body["paymentID"] = paymentID
+		body["paymentID"] = paymentID.(string)
 	}
 	if unlockTime != nil {
-		body["unlockTime"] = unlockTime
+		body["unlockTime"] = unlockTime.(uint64)
 	}
 	if changeAddress != nil {
-		body["changeAddress"] = changeAddress
+		body["changeAddress"] = changeAddress.(string)
 	}
 
 	resp, _, err := wAPI.sendRequest(
