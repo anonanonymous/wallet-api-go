@@ -246,7 +246,7 @@ func (wAPI WalletAPI) SendTransactionBasic(destination, paymentID string, amount
 		makeJSONString(map[string]interface{}{
 			"destination": destination,
 			"amount":      amount,
-			"paymentId":   paymentID,
+			"paymentID":   paymentID,
 		}),
 	)
 

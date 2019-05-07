@@ -29,22 +29,27 @@ func (wAPI WalletAPI) sendRequest(method, uri, data string) (*map[string]interfa
 
 	req.Header.Add("X-API-KEY", wAPI.APIKey)
 	req.Header.Add("Content-type", "application/json")
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	req.Close = true
-	defer resp.Body.Close()
-
-	if resp.StatusCode >= 400 {
+	if resp.StatusCode > 400 {
 		return nil, nil, errors.New(ERRORS[resp.StatusCode])
 	}
+
+	defer resp.Body.Close()
 
 	rawData, err = ioutil.ReadAll(resp.Body)
 	if err == nil {
 		json.Unmarshal(rawData, &body)
 	}
 
-	return &body, &rawData, nil
+	if resp.StatusCode == 400 {
+		return nil, nil, errors.New(body["errorMessage"].(string))
+	}
+
+	return &body, &rawData, err
 }

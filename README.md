@@ -68,6 +68,6 @@ func main() {
 	fmt.Println("====Done====")
 }
 ```
-Now run `go mod init "github.com/anonanonymous/wallet-api-go/wallet-api"` to add the module  
+Now run `go mod init "github.com/you/test"` to initialize the module  
 Build and run the example program 
-`go build; ./wallet-api`  
+`go build; ./test`  
