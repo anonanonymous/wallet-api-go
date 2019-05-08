@@ -1,22 +1,27 @@
 # wallet-api-go
 ![Go Report Card](https://goreportcard.com/badge/github.com/anonanonymous/wallet-api-go)  
+[![GoDoc](https://godoc.org/github.com/anonanonymous/wallet-api-go?status.svg)](https://godoc.org/github.com/anonanonymous/wallet-api-go)
+
 ## Prerequisites
 - Go compiler
 - wallet-api daemon
 ## Getting Started
-Start the wallet-api daemon.  
+Start the wallet-api daemon in a separate terminal window.
+```
+./wallet-api -r password
+```  
 Then make and switch to directory named `test`  
 ```
 mkdir test && cd $_
 ```
 Create main.go with the following contents. Edit the wallet configuration if neccessary.  
-```
+```go
 package main
 
 import (
 	"fmt"
 	"os"
-	walletapi "github.com/anonanonymous/wallet-api-go"
+	"github.com/anonanonymous/wallet-api-go"
 )
 
 func main() {
@@ -63,6 +68,40 @@ func main() {
 
 	fmt.Println("====GetMnemonic====")
 	fmt.Println(W.GetMnemonic(primary))
+
+	/* example sending an advanced transaction
+	fmt.Println("====SendTransactionAdvanced====")
+	fmt.Println(W.SendTransactionAdvanced(
+		[]map[string]interface{}{
+			map[string]interface{}{
+				"address": "TRTLuySpDqd2fcvq5vx7Jiayw6yao7JHXFPuia5V83cVREtQSKyvWpxX9vamnUcG35BkQy6VfwUy5CsV9YNomioPGGyVhK3YXLq",
+				"amount":  100,
+			},
+		},
+		nil, nil, []string{primary}, nil, nil, nil,
+	))
+	*/
+
+	fmt.Println("====GetAllTransactions====")
+	fmt.Println(W.GetAllTransactions())
+
+	fmt.Println("====GetTransactionByHash====")
+	fmt.Println(W.GetTransactionByHash("invalid hash"))
+
+	fmt.Println("===GetTransactionPrivateKey====")
+	fmt.Println(W.GetTransactionPrivateKey("invalid hash"))
+
+	addr, _ := W.CreateAddress()
+	fmt.Println("Created address:", addr)
+
+	fmt.Println("====GetAddressTransactionsByStartHeight - primary wallet address====")
+	fmt.Println(W.GetAddressTransactionsByStartHeight(primary, 1000))
+
+	fmt.Println("====GetAddressTransactionsByStartHeight - new wallet address====")
+	fmt.Println(W.GetAddressTransactionsByStartHeight(addr["address"], 1000))
+
+	W.DeleteAddress(addr["address"])
+	fmt.Println("Deleted address:", addr)
 
 	W.CloseWallet()
 	fmt.Println("====Done====")
