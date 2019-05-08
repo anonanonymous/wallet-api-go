@@ -5,7 +5,7 @@ import "encoding/json"
 // Balance - represents a wallet balance
 type Balance struct {
 	Unlocked uint64 `json:"unlocked"`
-	Locked   uint64 `json:"Locked"`
+	Locked   uint64 `json:"locked"`
 	Address  string `json:"address"`
 }
 
