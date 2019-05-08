@@ -9,7 +9,7 @@ import (
 // Transfer - represents a transfer object
 type Transfer struct {
 	Address string `json:"address"`
-	Amount  uint64 `json:"amount"`
+	Amount  int64  `json:"amount"`
 }
 
 // Transaction - represents a transaction object
