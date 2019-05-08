@@ -1,6 +1,7 @@
 # wallet-api-go
 ![Go Report Card](https://goreportcard.com/badge/github.com/anonanonymous/wallet-api-go)  
 [![GoDoc](https://godoc.org/github.com/anonanonymous/wallet-api-go?status.svg)](https://godoc.org/github.com/anonanonymous/wallet-api-go)
+![](https://travis-ci.com/anonanonymous/wallet-api-go.svg?branch=master)
 
 ## Prerequisites
 - Go compiler
