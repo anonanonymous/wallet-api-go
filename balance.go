@@ -25,18 +25,20 @@ func (wAPI WalletAPI) GetBalance() (unlocked, locked uint64, err error) {
 }
 
 // GetAddressBalance - gets the balance for the specified wallet address
-func (wAPI WalletAPI) GetAddressBalance(address string) (unlocked, locked uint64, err error) {
+func (wAPI WalletAPI) GetAddressBalance(address string) (bal *Balance, err error) {
+	bal = &Balance{}
 	resp, _, err := wAPI.sendRequest(
 		"GET",
 		wAPI.Host+":"+wAPI.Port+"/balance/"+address,
 		"",
 	)
 	if err == nil {
-		unlocked = uint64((*resp)["unlocked"].(float64))
-		locked = uint64((*resp)["locked"].(float64))
+		(*bal).Unlocked = uint64((*resp)["unlocked"].(float64))
+		(*bal).Locked = uint64((*resp)["locked"].(float64))
+		(*bal).Address = address
 	}
 
-	return unlocked, locked, err
+	return bal, err
 }
 
 // GetBalances - gets the balance for the every wallet address
