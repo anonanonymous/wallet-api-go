@@ -1,13 +1,12 @@
 package walletapi
 
 import (
-	"fmt"
 	"os"
 	"testing"
 )
 
 var (
-	W  *WalletAPI
+	W        *WalletAPI
 	addr, wd string
 )
 
@@ -21,7 +20,7 @@ func TestSetup(t *testing.T) {
 	}
 	W = InitWalletAPI("password", "127.0.0.1", "8070")
 
-	fmt.Println("====CreateWallet====")
+	t.Log("====CreateWallet====")
 	err := W.CreateWallet(&wallet)
 	if err != nil {
 		t.Fail()
@@ -34,15 +33,22 @@ func TestCreateAddress(t *testing.T) {
 		t.Fail()
 	}
 	addr = a["address"]
-	fmt.Println("Created address:", addr)
+	t.Log("Created address:", addr)
 }
 
+func TestNode(t *testing.T) {
+	info, err := W.Node()
+	if err != nil {
+		t.Fail()
+	}
+	t.Log(info)
+}
 func TestStatus(t *testing.T) {
 	stat, err := W.Status()
 	if err != nil {
 		t.Fail()
 	}
-	fmt.Println(stat)
+	t.Log(stat)
 }
 
 func TestGetAddressBalance(t *testing.T) {
@@ -50,7 +56,7 @@ func TestGetAddressBalance(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
-	fmt.Println(balance)
+	t.Log(balance)
 }
 
 func TestClose(t *testing.T) {
@@ -58,5 +64,5 @@ func TestClose(t *testing.T) {
 		t.Fail()
 	}
 	os.Remove(wd + "/test.wallet")
-	fmt.Println("====Done====")
+	t.Log("====Done====")
 }
