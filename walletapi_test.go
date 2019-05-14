@@ -37,6 +37,14 @@ func TestCreateAddress(t *testing.T) {
 	fmt.Println("Created address:", addr)
 }
 
+func TestStatus(t *testing.T) {
+	stat, err := W.Status()
+	if err != nil {
+		t.Fail()
+	}
+	fmt.Println(stat)
+}
+
 func TestGetAddressBalance(t *testing.T) {
 	balance, err := W.GetAddressBalance(addr)
 	if err != nil {
