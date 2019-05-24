@@ -6,7 +6,7 @@ import "encoding/json"
 type Status struct {
 	BlockCount       uint64 `json:"networkBlockCount"`
 	WalletBlockCount uint64 `json:"walletBlockCount"`
-	LocalBlockCount  uint64 `json:"localBlockCount"`
+	LocalBlockCount  uint64 `json:"localDaemonBlockCount"`
 	PeerCount        uint64 `json:"peerCount"`
 	Hashrate         uint64 `json:"hashrate"`
 	IsViewWallet     bool   `json:"isViewWallet"`
