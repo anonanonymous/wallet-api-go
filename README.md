@@ -109,5 +109,5 @@ func main() {
 }
 ```
 Build and run the example program  
-`go mod init github.com/anonanonyous/test`  
+`go mod init github.com/anonanonymous/test`  
 `go build; ./test`  
