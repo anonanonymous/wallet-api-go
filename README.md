@@ -108,5 +108,6 @@ func main() {
 	fmt.Println("====Done====")
 }
 ```
-Build and run the example program 
+Build and run the example program  
+`go mod init github.com/anonanonyous/test`  
 `go build; ./test`  
