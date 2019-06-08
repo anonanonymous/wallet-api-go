@@ -58,9 +58,10 @@ func TestValidateAddress(t *testing.T) {
 		t.Fail()
 	}
 
-	if !(*resp)["isIntegrated"].(bool) {
+	if !(*resp).IsIntegrated {
 		t.Fail()
 	}
+	t.Log(*resp)
 }
 
 func TestNode(t *testing.T) {
@@ -70,6 +71,7 @@ func TestNode(t *testing.T) {
 	}
 	t.Log(info)
 }
+
 func TestStatus(t *testing.T) {
 	stat, err := W.Status()
 	if err != nil {

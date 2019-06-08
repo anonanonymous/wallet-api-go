@@ -13,6 +13,15 @@ type Status struct {
 	SubWalletCount    uint64 `json:"subWalletCount"`
 }
 
+// AddressInfo - response from validate address
+type AddressInfo struct {
+	IsIntegrated   bool
+	PaymentID      string
+	ActualAddress  string
+	PublicSpendKey string
+	PublicViewKey  string
+}
+
 // Save - saves wallet container
 func (wAPI WalletAPI) Save() error {
 	_, _, err := wAPI.sendRequest(
@@ -38,8 +47,9 @@ func (wAPI WalletAPI) Reset(scanHeight uint64) error {
 }
 
 // ValidateAddress - validates an address
-func (wAPI WalletAPI) ValidateAddress(address string) (*map[string]interface{}, error) {
-	resp, _, err := wAPI.sendRequest(
+func (wAPI WalletAPI) ValidateAddress(address string) (*AddressInfo, error) {
+	var data AddressInfo
+	_, raw, err := wAPI.sendRequest(
 		"POST",
 		wAPI.Host+":"+wAPI.Port+"/addresses/validate",
 		makeJSONString(map[string]interface{}{
@@ -47,7 +57,11 @@ func (wAPI WalletAPI) ValidateAddress(address string) (*map[string]interface{}, 
 		}),
 	)
 
-	return resp, err
+	if err == nil {
+		err = json.Unmarshal(*raw, &data)
+	}
+
+	return &data, err
 }
 
 // Status - gets the wallet status
