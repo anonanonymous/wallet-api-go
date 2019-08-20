@@ -64,6 +64,16 @@ func TestValidateAddress(t *testing.T) {
 	t.Log(*resp)
 }
 
+func TestGetKeys(t *testing.T) {
+	pubKey, privKey, err := W.GetKeys(addr)
+	if err != nil {
+		t.Fail()
+	}
+	if pubKey == "" || privKey == "" {
+		t.Fail()
+	}
+}
+
 func TestNode(t *testing.T) {
 	info, err := W.Node()
 	if err != nil {

@@ -18,9 +18,7 @@ func (wAPI WalletAPI) ViewKey() (string, error) {
 }
 
 // GetKeys - gets the public and private view key for the given address
-func (wAPI WalletAPI) GetKeys(address string) (map[string]string, error) {
-	keys := make(map[string]string, 2)
-
+func (wAPI WalletAPI) GetKeys(address string) (publicSpendKey, privateSpendKey string, err error) {
 	resp, _, err := wAPI.sendRequest(
 		"GET",
 		wAPI.Host+":"+wAPI.Port+"/keys/"+address,
@@ -28,11 +26,11 @@ func (wAPI WalletAPI) GetKeys(address string) (map[string]string, error) {
 	)
 
 	if err == nil {
-		keys["privateSpendKey"] = (*resp)["privateSpendKey"].(string)
-		keys["publicSpendKey"] = (*resp)["publicSpendKey"].(string)
+		privateSpendKey = (*resp)["privateSpendKey"].(string)
+		publicSpendKey = (*resp)["publicSpendKey"].(string)
 	}
 
-	return keys, err
+	return publicSpendKey, privateSpendKey, err
 }
 
 // GetMnemonic - gets the mnemonic seed for the given address
