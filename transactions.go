@@ -30,7 +30,7 @@ type Transactions struct {
 	Transaction  Transaction   `json:"transaction"`
 }
 
-// GetAllTransactions - gets all the tranactions in the wallet container
+// GetAllTransactions - gets all the transactions in the wallet container
 func (wAPI WalletAPI) GetAllTransactions() (txs *[]Transaction, err error) {
 	var tx Transactions
 	defer func() {
