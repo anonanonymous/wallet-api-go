@@ -1,7 +1,8 @@
 language: go
 go:
   - "1.12"
+dist: bionic
 before_script:
   - wget https://github.com/turtlecoin/turtlecoin/releases/download/v0.22.0/turtlecoin-linux-v0.22.0.tar.gz
   - tar zxf turtle*
-  - screen -d -m ./turtle*/wallet-api -r password
+  - screen -d -m ./turtle*/wallet-api -r password --no-console

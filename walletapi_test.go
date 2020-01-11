@@ -8,25 +8,24 @@ import (
 var (
 	W             *WalletAPI
 	addr, intAddr string
-	wd            string
+	wd, r         string
 )
 
-const r = "TRTLuySpDqd2fcvq5vx7Jiayw6yao7JHXFPuia5V83cVREtQSKyvWpxX9vamnUcG35BkQy6VfwUy5CsV9YNomioPGGyVhK3YXLq"
-
 func TestSetup(t *testing.T) {
-	//	wd, _ = os.Getwd()
-	//	wallet := Wallet{
-	//		Filename:   wd + "/test.wallet",
-	//		Password:   "password",
-	//		DaemonHost: "public.turtlenode.io",
-	//		DaemonPort: 11898,
-	//	}
-	W = InitWalletAPI("pass", "127.0.0.1", "8070")
+	wd, _ = os.Getwd()
+	wallet := Wallet{
+		Filename:   wd + "/test.wallet",
+		Password:   "password",
+		DaemonHost: "public.turtlenode.io",
+		DaemonPort: 11898,
+	}
+	W = InitWalletAPI("password", "127.0.0.1", "8070")
 
-	//	err := W.CreateWallet(&wallet)
-	//	if err != nil {
-	//		t.Fail()
-	//	}
+	err := W.CreateWallet(&wallet)
+	if err != nil {
+		t.Error(err)
+	}
+	r, _ = W.PrimaryAddress()
 	t.Log(W.Status())
 	t.Log("Created Wallet")
 }
@@ -44,7 +43,7 @@ func TestCreateIntegratedAddress(t *testing.T) {
 	tx := "c3fa5258221aeae7407ba3a2886811fb0c76ae1e8cdef179e1117d7ac6c9d3aa"
 	a, err := W.CreateIntegratedAddress(addr, tx)
 	if err != nil {
-		t.Fail()
+		t.Error(err)
 	}
 	intAddr = a
 	t.Log(a)
@@ -53,12 +52,12 @@ func TestCreateIntegratedAddress(t *testing.T) {
 func TestValidateAddress(t *testing.T) {
 	_, err := W.ValidateAddress(addr)
 	if err != nil {
-		t.Fail()
+		t.Error(err)
 	}
 
 	resp, err := W.ValidateAddress(intAddr)
 	if err != nil {
-		t.Fail()
+		t.Error(err)
 	}
 
 	if !(*resp).IsIntegrated {
@@ -67,6 +66,7 @@ func TestValidateAddress(t *testing.T) {
 	t.Log(*resp)
 }
 
+// run these tests on a wallet with sufficient funds
 /*
 func TestPrepareTransactionBasic(t *testing.T) {
 	tx, err := W.PrepareTransactionBasic(r, 100, "")
@@ -77,13 +77,12 @@ func TestPrepareTransactionBasic(t *testing.T) {
 
 	t.Log(W.DeletePreparedTransaction(tx.TransactionHash))
 }
-*
-// run this test on a wallet with sufficient funds
+
 func TestPrepareTransactionAdvanced(t *testing.T) {
 	tx, err := W.PrepareTransactionAdvanced(
 		[]map[string]interface{}{
 			{
-				"address": r,
+				"address": ,
 				"amount":  10,
 			},
 		},
@@ -119,7 +118,7 @@ func TestSendTransaction(t *testing.T) {
 func TestGetKeys(t *testing.T) {
 	pubKey, privKey, err := W.GetKeys(addr)
 	if err != nil {
-		t.Fail()
+		t.Error(err)
 	}
 	if pubKey == "" || privKey == "" {
 		t.Fail()
@@ -129,7 +128,7 @@ func TestGetKeys(t *testing.T) {
 func TestNode(t *testing.T) {
 	info, err := W.Node()
 	if err != nil {
-		t.Fail()
+		t.Error(err)
 	}
 	t.Log(info)
 }
@@ -137,7 +136,7 @@ func TestNode(t *testing.T) {
 func TestStatus(t *testing.T) {
 	stat, err := W.Status()
 	if err != nil {
-		t.Fail()
+		t.Error(err)
 	}
 	t.Log(stat)
 }
@@ -152,7 +151,7 @@ func TestGetBalance(t *testing.T) {
 func TestGetAddressBalance(t *testing.T) {
 	balance, err := W.GetAddressBalance(addr)
 	if err != nil {
-		t.Fail()
+		t.Error(err)
 	}
 	t.Log(balance)
 }
