@@ -12,10 +12,18 @@ type Transfer struct {
 	Amount  int64  `json:"amount"`
 }
 
+// TransactionResult - represents the result of a sent / prepared transaction
+type TransactionResult struct {
+	TransactionHash  string `json:"transactionHash"`
+	FeePerByte       uint64 `json:"feePerByte"`
+	RelayedToNetwork bool   `json:"relayedToNetwork"`
+}
+
 // Transaction - represents a transaction object
 type Transaction struct {
 	BlockHeight           uint64     `json:"blockHeight"`
 	Fee                   uint64     `json:"fee"`
+	FeePerByte            uint64     `json:"feePerByte"`
 	Hash                  string     `json:"hash"`
 	IsCoinbaseTransaction bool       `json:"isCoinbaseTransaction"`
 	PaymentID             string     `json:"paymentID"`
@@ -260,14 +268,13 @@ func (wAPI WalletAPI) SendTransactionBasic(destination, paymentID string, amount
 // SendTransactionAdvanced - sends a transaction
 func (wAPI WalletAPI) SendTransactionAdvanced(
 	destinations []map[string]interface{},
-	mixin, fee, sourceAddresses, paymentID, changeAddress, unlockTime interface{}) (tx string, err error) {
-	var txHash string
-
+	mixin, fee, feePerByte, sourceAddresses, paymentID, changeAddress, unlockTime interface{}) (tx *TransactionResult, err error) {
 	defer func() {
 		if ok := recover(); ok != nil {
 			err = errors.New(ERRORS[400])
 		}
 	}()
+
 	body := map[string]interface{}{
 		"destinations": destinations,
 	}
@@ -277,6 +284,9 @@ func (wAPI WalletAPI) SendTransactionAdvanced(
 	}
 	if fee != nil {
 		body["fee"] = fee.(uint64)
+	}
+	if feePerByte != nil {
+		body["feePerByte"] = feePerByte.(uint64)
 	}
 	if sourceAddresses != nil {
 		body["sourceAddresses"] = sourceAddresses.([]string)
@@ -291,17 +301,18 @@ func (wAPI WalletAPI) SendTransactionAdvanced(
 		body["changeAddress"] = changeAddress.(string)
 	}
 
-	resp, _, err := wAPI.sendRequest(
+	_, raw, err := wAPI.sendRequest(
 		"POST",
 		wAPI.Host+":"+wAPI.Port+"/transactions/send/advanced",
 		makeJSONString(body),
 	)
 
-	if err == nil {
-		txHash = (*resp)["transactionHash"].(string)
+	if err != nil {
+		return nil, err
 	}
+	err = json.Unmarshal(*raw, &tx)
 
-	return txHash, err
+	return tx, err
 }
 
 // SendFusionBasic - sends a fusion transaction
@@ -340,6 +351,109 @@ func (wAPI WalletAPI) SendFusionAdvanced(sourceAddresses []string, destination s
 	}
 
 	return txHash, err
+}
+
+// PrepareTransactionBasic - creates a transaction but does not relay it to the network
+func (wAPI WalletAPI) PrepareTransactionBasic(destination string, amount uint64, paymentID string) (*TransactionResult, error) {
+	var transaction TransactionResult
+
+	_, raw, err := wAPI.sendRequest(
+		"POST",
+		wAPI.Host+":"+wAPI.Port+"/transactions/prepare/basic",
+		makeJSONString(map[string]interface{}{
+			"destination": destination,
+			"amount":      amount,
+			"paymentID":   paymentID,
+		}),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(*raw, &transaction)
+
+	return &transaction, err
+}
+
+// PrepareTransactionAdvanced - creates a transaction but does not relay it to the network
+func (wAPI WalletAPI) PrepareTransactionAdvanced(
+	destinations []map[string]interface{},
+	mixin, fee, feePerByte, sourceAddresses, paymentID, changeAddress, unlockTime interface{}) (tx *TransactionResult, err error) {
+	defer func() {
+		if ok := recover(); ok != nil {
+			err = errors.New(ERRORS[400])
+		}
+	}()
+
+	body := map[string]interface{}{
+		"destinations": destinations,
+	}
+
+	if mixin != nil {
+		body["mixin"] = mixin.(uint64)
+	}
+	if fee != nil {
+		body["fee"] = fee.(uint64)
+	}
+	if feePerByte != nil {
+		body["feePerByte"] = feePerByte.(uint64)
+	}
+	if sourceAddresses != nil {
+		body["sourceAddresses"] = sourceAddresses.([]string)
+	}
+	if paymentID != nil {
+		body["paymentID"] = paymentID.(string)
+	}
+	if unlockTime != nil {
+		body["unlockTime"] = unlockTime.(uint64)
+	}
+	if changeAddress != nil {
+		body["changeAddress"] = changeAddress.(string)
+	}
+
+	_, raw, err := wAPI.sendRequest(
+		"POST",
+		wAPI.Host+":"+wAPI.Port+"/transactions/prepare/advanced",
+		makeJSONString(body),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(*raw, &tx)
+
+	return tx, err
+}
+
+// SendPreparedTransaction - sends a previously created prepared transaction
+func (wAPI WalletAPI) SendPreparedTransaction(hash string) (string, error) {
+	var txHash string
+
+	resp, _, err := wAPI.sendRequest(
+		"POST",
+		wAPI.Host+":"+wAPI.Port+"/transactions/prepared",
+		makeJSONString(map[string]interface{}{
+			"transactionHash": hash,
+		}),
+	)
+
+	if err == nil {
+		txHash = (*resp)["transactionHash"].(string)
+	}
+
+	return txHash, err
+}
+
+// DeletePreparedTransaction - removes a previously created prepared transaction
+func (wAPI WalletAPI) DeletePreparedTransaction(hash string) error {
+	_, _, err := wAPI.sendRequest(
+		"DELETE",
+		wAPI.Host+":"+wAPI.Port+"/transactions/prepared/"+hash,
+		"",
+	)
+
+	return err
 }
 
 // GetTransactionPrivateKey - gets the private key of a transaction with the given hash
