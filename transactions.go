@@ -15,7 +15,7 @@ type Transfer struct {
 // TransactionResult - represents the result of a sent / prepared transaction
 type TransactionResult struct {
 	TransactionHash  string `json:"transactionHash"`
-	FeePerByte       uint64 `json:"feePerByte"`
+	Fee              uint64 `json:"fee"`
 	RelayedToNetwork bool   `json:"relayedToNetwork"`
 }
 
